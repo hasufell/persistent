@@ -585,7 +585,13 @@ sqlForeign fdef = T.concat
     , escape $ foreignRefTableDBName fdef
     , "("
     , T.intercalate "," $ map (escape . snd . snd) $ foreignFields fdef
-    , ")"
+    , ") "
+    -- NOTE
+    -- Ugly hack to inject some arbitrary raw SQL into the schema with foreign keys declaration.
+    -- This allows for effectively supporting cascade deletion by writing something like:
+    --
+    -- Foreign Parent fk_parent parent_id ! ON DELETE CASCADE
+    , T.intercalate " " $ drop 1 $ foreignAttrs fdef
     ]
 
 sqlUnique :: UniqueDef -> Text
